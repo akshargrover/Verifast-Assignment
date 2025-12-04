@@ -1,0 +1,209 @@
+{
+    "intent_mapper": [
+      {
+        "primary_intent_id": "basic_interactions",
+        "primary_intent_name": "Basic Interactions",
+        "secondary_intents": [
+          {
+            "id": "greetings",
+            "name": "Greetings",
+            "description": "When a customer gives greetings only like Hi, hello, thank you etc."
+          },
+          {
+            "id": "acknowledgment",
+            "name": "Acknowledgment",
+            "description": "When a customer gives acknowledgment only like Ok, Thanks, Got it, Alright etc."
+          }
+        ]
+      },
+      {
+        "primary_intent_id": "about_company",
+        "primary_intent_name": "About Company",
+        "secondary_intents": [
+          {
+            "id": "contact_details",
+            "name": "Contact Details",
+            "description": "When a customer asks about the company's contact specifically."
+          },
+          {
+            "id": "about_team",
+            "name": "About Team",
+            "description": "When a customer asks about the team."
+          }
+        ]
+      },
+      {
+        "primary_intent_id": "specific_product",
+        "primary_intent_name": "About Product",
+        "secondary_intents": [
+          {
+            "id": "effectiveness",
+            "name": "Unsure About Effectiveness",
+            "description": "When the customer is not sure about the effectiveness of the product."
+          },
+          {
+            "id": "product_ingredients",
+            "name": "Product Ingredients",
+            "description": "When customer asks about the ingredients of a product."
+          },
+          {
+            "id": "pricing",
+            "name": "Pricing",
+            "description": "When the message is related to the price of a product."
+          },
+          {
+            "id": "no_query_uc",
+            "name": "No More Product Query",
+            "description": "When the customer's message indicates they have no further questions about the product."
+          },
+          {
+            "id": "all_product",
+            "name": "All Products",
+            "description": "When the message is related to all products that company provides."
+          },
+          {
+            "id": "payment_options_available",
+            "name": "Payment Options Available",
+            "description": "When the customer asks about payment options available."
+          },
+          {
+            "id": "certification",
+            "name": "Certification",
+            "description": "When customer asks for product certification or if it is harmful chemical free."
+          },
+          {
+            "id": "place_order",
+            "name": "Place Order",
+            "description": "When the customer asks how to place an order."
+          },
+          {
+            "id": "comparison",
+            "name": "Comparison",
+            "description": "When the message is related to comparing one product with another product."
+          },
+          {
+            "id": "out_of_stock",
+            "name": "Out of Stock",
+            "description": "When customer says product is out of stock or can't find it on website."
+          },
+          {
+            "id": "product_info",
+            "name": "Product Info",
+            "description": "When the customer wants to know how to use etc or says yes to a question about how to use by the agent."
+          },
+          {
+            "id": "product_speciality_uc",
+            "name": "Product Specialty",
+            "description": "When customer asks specialty or benefits of a product or says yes to a question about specialty prompted by the agent."
+          }
+        ]
+      },
+      {
+        "primary_intent_id": "recommendation",
+        "primary_intent_name": "Recommendation",
+        "secondary_intents": [
+          {
+            "id": "customer_problem",
+            "name": "Customer Problem",
+            "description": "When the customer talks about a personal issue, concern, or challenge they are facing (which could be related to the product but doesn't involve expressing dissatisfaction or frustration)."
+          },
+          {
+            "id": "customer_information",
+            "name": "Customer Concern Related Information",
+            "description": "When the customer shares their details like concern etc for product recommendation."
+          },
+          {
+            "id": "seeking_solution",
+            "name": "Seeking Solution",
+            "description": "When customer asks recommendation for a product/category for their skin/hair type."
+          }
+        ]
+      },
+      {
+        "primary_intent_id": "logistics",
+        "primary_intent_name": "Logistics",
+        "secondary_intents": [
+          {
+            "id": "address_change",
+            "name": "Address Change",
+            "description": "When the customer asks about changing the address of the order."
+          },
+          {
+            "id": "wrong_order",
+            "name": "Wrong/Damaged Order",
+            "description": "When the customer mentions that they received a wrong order/incorrect order or damaged order or missing product or the customer wants to exchange the product."
+          },
+          {
+            "id": "order_delivered_but_not_received",
+            "name": "Marked Delivered, Not Received",
+            "description": "Only applicable when the customer reports that the tracking/portal shows their order as 'delivered,' but they have not actually received the package."
+          },
+          {
+            "id": "b2b_queries",
+            "name": "B2B Queries",
+            "description": "When the customer asks about B2B queries like placing bulk order or talks about distribution."
+          },
+          {
+            "id": "refund_policy",
+            "name": "Refund Policy",
+            "description": "When a customer asks for the status of their refund/or when they will get their refund amount."
+          },
+          {
+            "id": "refund_required",
+            "name": "Refund Required",
+            "description": "When a customer asking you to give refund or asking about refund policy."
+          },
+          {
+            "id": "cancellation",
+            "name": "Cancellation",
+            "description": "When the customer asks about the cancellation policy for any product."
+          },
+          {
+            "id": "payment",
+            "name": "Payment Related Issues",
+            "description": "When the customer talks about payment is failed but their money is deducted, or they are having trouble with payment."
+          },
+          {
+            "id": "ecommerce_quick_commerce",
+            "name": "E-commerce/Quick Commerce",
+            "description": "When the customer asks about the availability of the product on e-commerce platforms."
+          },
+          {
+            "id": "feedback",
+            "name": "Feedback",
+            "description": "When the customer is complaining or giving feedback about a product/service or delivery."
+          },
+          {
+            "id": "order_status",
+            "name": "Order Status",
+            "description": "When the customer talks about the status of an order, or asks for order tracking, or delay in delivery."
+          },
+          {
+            "id": "discount",
+            "name": "Discount",
+            "description": "When the customer asks about offers or discounts available for a product."
+          },
+          {
+            "id": "talk_to_agent",
+            "name": "Talk to Agent",
+            "description": "When the customer is explicitly asking to wants to connect with a live agent or want to talk to a human."
+          },
+          {
+            "id": "return_policy",
+            "name": "Return Policy",
+            "description": "When a customer asks for the return policy for any product."
+          },
+          {
+            "id": "complaint",
+            "name": "Complaint",
+            "description": "When the customer expresses a complaint, concern, dissatisfaction, frustration, or disappointment regarding a skincare product or service—including mentions of the product not working, being ineffective, causing irritation, having poor results, or not meeting their expectations. Damaged order and wrong order received is not considered as complaint."
+          },
+          {
+            "id": "website_issue",
+            "name": "Website Issue",
+            "description": "When the customer reports any issue related to the website, such as errors, loading problems, or when they are unable to place an order."
+          }
+        ]
+      }
+    ]
+}
