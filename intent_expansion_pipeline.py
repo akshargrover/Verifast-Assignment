@@ -7,7 +7,7 @@ import json
 import os
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
-import anthropic  # or use openai, langchain, etc.
+import google.generativeai as genai
 
 
 @dataclass
@@ -24,20 +24,22 @@ class IntentClassifier:
     Intent classification system using LLM with optimized taxonomy
     """
     
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-sonnet-4-20250514"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-2.5-flash"):
         """
         Initialize the classifier
         
         Args:
-            api_key: API key for Anthropic (or set ANTHROPIC_API_KEY env var)
-            model: Model to use for classification
+            api_key: API key for Google Gemini (or set GOOGLE_API_KEY env var)
+            model: Model to use for classification (default: gemini-2.0-flash-exp)
+                   Available models: gemini-2.0-flash-exp, gemini-1.5-flash, gemini-1.5-pro
         """
-        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
+        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
-            raise ValueError("API key must be provided or set as ANTHROPIC_API_KEY environment variable")
+            raise ValueError("API key must be provided or set as GOOGLE_API_KEY environment variable")
         
-        self.client = anthropic.Anthropic(api_key=self.api_key)
-        self.model = model
+        genai.configure(api_key=self.api_key)
+        self.model_name = model
+        self.model = genai.GenerativeModel(model_name=model)
         self.system_prompt = self._build_system_prompt()
     
     def _build_system_prompt(self) -> str:
@@ -183,8 +185,9 @@ Now classify the following message based on the conversation history provided.
             ValueError: If API returns invalid response
             Exception: For API errors
         """
+        response_text = ""
         try:
-            # Construct the user prompt
+            # Construct the full prompt (system + user)
             user_prompt = f"""**CONVERSATION HISTORY:**
 {conversation_history if conversation_history else "[No prior conversation]"}
 
@@ -193,18 +196,20 @@ Now classify the following message based on the conversation history provided.
 
 Classify this message and return JSON only."""
             
-            # Call the LLM API
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=1000,
-                system=self.system_prompt,
-                messages=[
-                    {"role": "user", "content": user_prompt}
-                ]
+            # Combine system prompt and user prompt for Gemini
+            full_prompt = f"{self.system_prompt}\n\n{user_prompt}"
+            
+            # Call the Gemini API
+            response = self.model.generate_content(
+                full_prompt,
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=1000,
+                    temperature=0.1
+                )
             )
             
             # Extract response text
-            response_text = response.content[0].text.strip()
+            response_text = response.text.strip()
             
             # Parse JSON response
             result_dict = self._parse_json_response(response_text)
@@ -216,12 +221,14 @@ Classify this message and return JSON only."""
                 reasoning=result_dict.get("reasoning", "")
             )
             
-        except anthropic.APIError as e:
-            raise Exception(f"API Error: {str(e)}")
         except json.JSONDecodeError as e:
             raise ValueError(f"Failed to parse JSON response: {response_text}")
         except KeyError as e:
             raise ValueError(f"Missing required field in response: {str(e)}")
+        except Exception as e:
+            if "API" in str(e) or "api" in str(e).lower():
+                raise Exception(f"API Error: {str(e)}")
+            raise Exception(f"Error: {str(e)}")
     
     def _parse_json_response(self, response_text: str) -> Dict:
         """
@@ -277,7 +284,7 @@ def main():
     Example usage of the IntentClassifier
     """
     # Initialize classifier
-    classifier = IntentClassifier()
+    classifier = IntentClassifier(model="gemini-2.5-flash")
     
     # Example 1: Simple order tracking
     result1 = classifier.classify(
