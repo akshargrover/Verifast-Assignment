@@ -254,7 +254,11 @@ Classify this message and return JSON only."""
         # If we are here, all attempts failed
         if self.fallback_enabled:
             self.logger.error("Returning fallback result after failure: %s", str(last_error))
-            return self._build_fallback_result(str(last_error) if last_error else "Unknown error")
+            return self._build_fallback_result(
+                str(last_error) if last_error else "Unknown error",
+                current_message=current_message,
+                conversation_history=conversation_history,
+            )
 
         # Fallback disabled: raise the last error
         if last_error:
@@ -286,15 +290,98 @@ Classify this message and return JSON only."""
         # Parse JSON
         return json.loads(response_text)
 
-    def _build_fallback_result(self, error_reason: str) -> IntentResult:
+    def _build_fallback_result(
+        self,
+        error_reason: str,
+        current_message: Optional[str] = None,
+        conversation_history: Optional[str] = None
+    ) -> IntentResult:
         """
-        Build a safe fallback intent result when classification fails
+        Build a safe fallback intent result when classification fails.
+        Tries a lightweight rule-based match before defaulting to out_of_scope.
         """
+        if current_message:
+            rule_match = self._rule_based_intent(current_message, conversation_history or "")
+            if rule_match:
+                primary, secondary = rule_match
+                return IntentResult(
+                    primary=primary,
+                    secondary=secondary,
+                    reasoning=f"Rule-based fallback classification after error: {error_reason}"
+                )
+
         return IntentResult(
             primary="Special Categories",
             secondary="out_of_scope",
             reasoning=f"Fallback classification used due to error: {error_reason}"
         )
+
+    def _rule_based_intent(
+        self,
+        current_message: str,
+        conversation_history: str
+    ) -> Optional[Tuple[str, str]]:
+        """
+        Simple keyword-based fallback classifier.
+        Returns (primary, secondary) or None if no rule matches.
+        """
+        text = f"{conversation_history} {current_message}".lower()
+
+        rules: Dict[Tuple[str, str], List[str]] = {
+            ("Logistics", "order_status"): [
+                "where is my order",
+                "track",
+                "tracking",
+                "order status",
+                "not received",
+                "not delivered",
+                "pending",
+                "kaha hai",
+            ],
+            ("Logistics", "order_delivered_but_not_received"): [
+                "marked delivered",
+                "shows delivered",
+                "status delivered",
+                "delivered but not received",
+            ],
+            ("Logistics", "delivery_delay"): [
+                "delayed",
+                "delay",
+                "late",
+            ],
+            ("Logistics", "wrong_order"): [
+                "wrong item",
+                "damaged",
+                "broken",
+                "missing",
+                "exchange",
+                "return",
+            ],
+            ("Basic Interactions", "greetings"): [
+                "hi",
+                "hello",
+                "hey",
+            ],
+            ("Basic Interactions", "acknowledgment"): [
+                "ok",
+                "okay",
+                "thanks",
+                "thank you",
+            ],
+            ("Basic Interactions", "language_preference"): [
+                "hindi",
+                "tamil",
+                "telugu",
+                "kannada",
+                "language",
+            ],
+        }
+
+        for (primary, secondary), keywords in rules.items():
+            if any(keyword in text for keyword in keywords):
+                return primary, secondary
+
+        return None
     
     def classify_batch(
         self, 
@@ -323,7 +410,11 @@ Classify this message and return JSON only."""
                 results[idx] = self.classify(message, history)
             except Exception as e:
                 self.logger.error("Error classifying message '%s': %s", message[:50], str(e))
-                results[idx] = self._build_fallback_result(str(e))
+                results[idx] = self._build_fallback_result(
+                    str(e),
+                    current_message=message,
+                    conversation_history=history,
+                )
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
